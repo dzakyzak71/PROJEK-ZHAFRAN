@@ -40,6 +40,15 @@ Route::middleware('auth')->group(function () {
     Route::get('/superadmin/dashboard', function () {
         return view('superadmin.pages.dashboard');
     })->name('superadmin.dashboard');
+    Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->group(function () {
+    Route::view('/laporan', 'superadmin.pages.components.laporan-user')->name('superadmin.laporan');
+    Route::view('/buat-admin', 'superadmin.pages.components.buat-admin')->name('superadmin.buat-admin');
+    Route::view('/buat-user', 'superadmin.pages.components.buat-user')->name('superadmin.buat-user');
+    Route::view('/cek-bug', 'superadmin.pages.components.cek-bug')->name('superadmin.cek-bug');
+    Route::view('/upload-berita', 'superadmin.pages.components.upload-berita')->name('superadmin.upload-berita');
+    Route::view('/tracking', 'superadmin.pages.components.tracking-ip')->name('superadmin.tracking');
+    });
+
 
     Route::get('/admin/dashboard', function () {
         return view('admin.pages.dashboard');
