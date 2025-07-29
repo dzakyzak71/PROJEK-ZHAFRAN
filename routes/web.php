@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Superadmin\LaporanController;
 
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -41,12 +42,18 @@ Route::middleware('auth')->group(function () {
         return view('superadmin.pages.dashboard');
     })->name('superadmin.dashboard');
     Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->group(function () {
-    Route::view('/laporan', 'superadmin.pages.components.laporan-user')->name('superadmin.laporan');
+ Route::get('/laporan', [LaporanController::class, 'index'])->name('superadmin.laporan');
+    Route::get('/laporan/{id}', [LaporanController::class, 'show'])->name('superadmin.laporan.show');
+    Route::get('/laporan/{id}/pdf', [LaporanController::class, 'exportPdf'])->name('superadmin.laporan.pdf');
+    Route::get('/laporan/{id}/print', [LaporanController::class, 'print'])->name('superadmin.laporan.print');
+
     Route::view('/buat-admin', 'superadmin.pages.components.buat-admin')->name('superadmin.buat-admin');
     Route::view('/buat-user', 'superadmin.pages.components.buat-user')->name('superadmin.buat-user');
     Route::view('/cek-bug', 'superadmin.pages.components.cek-bug')->name('superadmin.cek-bug');
     Route::view('/upload-berita', 'superadmin.pages.components.upload-berita')->name('superadmin.upload-berita');
     Route::view('/tracking', 'superadmin.pages.components.tracking-ip')->name('superadmin.tracking');
+    
+        
     });
 
 
