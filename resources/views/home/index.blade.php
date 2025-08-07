@@ -3,15 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Intelijen News | Welcome</title>
+  <title>{{ config('app.name', 'Intelijen News') }} | Beranda</title>
 
-  <!-- Bootstrap & Chart.js -->
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
-      background-color: #f7f7f7;
+      background-color: #f8f9fa;
       font-family: 'Segoe UI', sans-serif;
     }
     .card-img-top {
@@ -22,6 +24,13 @@
       font-weight: bold;
       color: #2c3e50 !important;
     }
+    .btn-primary {
+      background-color: #2c3e50;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #1a242f;
+    }
   </style>
 </head>
 <body>
@@ -29,6 +38,7 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
   <div class="container">
+    <a class="navbar-brand" href="#">Intelijen News</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -58,25 +68,40 @@
   </div>
 </nav>
 
-<!-- Konten -->
+<!-- Konten Utama -->
 <div class="container py-5">
 
+  <!-- Judul -->
+  <div class="text-center mb-5">
+    <h1 class="fw-bold">Berita Terbaru</h1>
+    <p class="text-muted">Informasi dari sumber terpercaya, intelijen global, dan media rahasia</p>
+  </div>
 
   <!-- Berita -->
   <div class="row mb-5">
     @forelse($beritas as $berita)
       <div class="col-md-4 mb-4">
         <div class="card h-100 shadow-sm">
-          <img src="{{ asset('storage/images/' . $berita->gambar) }}" class="card-img-top" alt="{{ $berita->judul }}">
-          <div class="card-body">
+          @if($berita->gambar)
+            <img src="{{ asset('storage/berita/' . $berita->gambar) }}" alt="Gambar {{ $berita->judul }}" class="card-img-top">
+          @else
+            <img src="https://via.placeholder.com/400x200?text=No+Image" alt="Tidak ada gambar" class="card-img-top">
+          @endif
+          <div class="card-body d-flex flex-column">
             <h5 class="card-title">{{ $berita->judul }}</h5>
-            <p class="card-text">{{ Str::limit($berita->isi, 100) }}</p>
-            <a href="{{ route('berita.show', $berita->id) }}" class="btn btn-primary">Baca Selengkapnya</a>
+            <small class="text-muted d-block mb-2">
+              {{ $berita->created_at->translatedFormat('d F Y') }}
+              @if($berita->sumber) | {{ $berita->sumber }} @endif
+            </small>
+            <p class="card-text mb-4">{{ Str::limit(strip_tags($berita->isi), 100) }}</p>
+            <a href="{{ route('berita.show', $berita->id) }}" class="btn btn-primary btn-sm mt-auto">Baca Selengkapnya</a>
           </div>
         </div>
       </div>
     @empty
-      <p class="text-center">Belum ada berita.</p>
+      <div class="col-12 text-center">
+        <p class="text-muted">Belum ada berita tersedia.</p>
+      </div>
     @endforelse
   </div>
 
@@ -87,7 +112,12 @@
   </div>
 </div>
 
-<!-- Script -->
+<!-- Footer -->
+<footer class="text-center text-muted py-4 bg-light mt-5 border-top">
+  <div>© {{ now()->year }} <strong>Intelijen News</strong>. All rights reserved.</div>
+</footer>
+
+<!-- Script Chart -->
 <script>
   const ctx = document.getElementById('visitorChart').getContext('2d');
   const visitorChart = new Chart(ctx, {
@@ -97,8 +127,8 @@
       datasets: [{
         label: 'Jumlah Pengunjung',
         data: {!! json_encode($data) !!},
-        borderColor: '#007bff',
-        backgroundColor: 'rgba(0,123,255,0.2)',
+        borderColor: '#2c3e50',
+        backgroundColor: 'rgba(44, 62, 80, 0.2)',
         tension: 0.4,
         fill: true
       }]
@@ -106,11 +136,18 @@
     options: {
       responsive: true,
       scales: {
-        y: { beginAtZero: true }
+        y: {
+          beginAtZero: true,
+          ticks: {
+            stepSize: 50
+          }
+        }
       }
     }
   });
 </script>
+
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>

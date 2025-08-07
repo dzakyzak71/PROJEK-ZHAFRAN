@@ -10,17 +10,22 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-                Schema::create('beritas', function (Blueprint $table) {
-            $table->id();
-            $table->string('judul');
-            $table->text('isi');
-            $table->string('gambar');
-            $table->timestamps();
-            
-        });
-        
+    
+{
+    Schema::create('beritas', function (Blueprint $table) {
+        $table->id();
+        $table->string('judul');
+        $table->text('isi');
+        $table->string('gambar')->nullable(); // simpan path gambar
+        $table->string('sumber');
+        $table->timestamps();
+    });
+
     }
+
+
+        
+    
 
     /**
      * Reverse the migrations.

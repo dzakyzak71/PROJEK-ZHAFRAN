@@ -41,7 +41,7 @@
                     <li><a href="{{ route('superadmin.buat-admin') }}">👤 Buat Akun Admin</a></li>
                     <li><a href="{{ route('superadmin.buat-user') }}">👥 Buat Akun User</a></li>
                     <li><a href="{{ route('superadmin.cek-bug') }}">🐞 Cek Bug</a></li>
-                    <li><a href="{{ route('superadmin.upload-berita') }}">📰 Upload Berita</a></li>
+                   <li><a href="{{ route('superadmin.upload-berita') }}">📰 Upload Berita</a></li>
                     <li><a href="{{ route('superadmin.tracking') }}">🛰️ Tracking IP Hacker</a></li>
                 @endrole
 
@@ -50,9 +50,12 @@
                     <li><a href="#" class="block text-gray-700 hover:text-blue-600">📥 Lihat Laporan</a></li>
                 @endrole
 
-                @role('user')
-                    <li><a href="#" class="block text-gray-700 hover:text-blue-600">✍️ Kirim Laporan</a></li>
+                @role('superadmin')
+                    <li>
+                        <a href="{{ route('superadmin.laporan-user') }}" class="block text-gray-700 hover:text-red-600">📋 Lihat Laporan User</a>
+                    </li>
                 @endrole
+
             </ul>
         </aside>
 
