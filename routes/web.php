@@ -4,15 +4,16 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\User\LaporanController;
-use App\Http\Controllers\User\UserDashboardController;
-use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\Superadmin\AkunAdminController;
 use App\Http\Controllers\Superadmin\AkunUserController;
 use App\Http\Controllers\Superadmin\BeritaController;
 use App\Http\Controllers\Superadmin\CekBugController;
 use App\Http\Controllers\Superadmin\IpTrackingController;
-use App\Http\Controllers\Superadmin\User\LaporanUserController;
+use App\Http\Controllers\User\UserController;
+use App\Http\Controllers\User\LaporanController;
+
+
+
 
 
 // ===================== PUBLIC ============================
@@ -96,23 +97,16 @@ Route::middleware('auth')->group(function () {
     });
 
    // ===================== USER ============================
-    Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
-
-        // Dashboard user pakai controller
-        Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-
-        // Kirim laporan
-        Route::get('/laporan/kirim', [LaporanController::class, 'create'])->name('laporan.create');
-        Route::post('/laporan/kirim', [LaporanController::class, 'store'])->name('laporan.store');
-
-        // Riwayat & Edit Laporan
-        Route::get('/laporan/riwayat', [LaporanController::class, 'riwayat'])->name('laporan.riwayat');
-        Route::get('/laporan/{id}/edit', [LaporanController::class, 'edit'])->name('laporan.edit');
-        Route::put('/laporan/{id}', [LaporanController::class, 'update'])->name('laporan.update');
-
-        // Profile
-        Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-        Route::post('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    });
+   Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
+    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+    Route::get('/profil', [UserController::class, 'editProfil'])->name('profil');
+    Route::post('/profil', [UserController::class, 'updateProfil'])->name('profil.update');
+    
+    Route::get('/laporan/kirim/{admin}', [LaporanController::class, 'create'])->name('laporan.kirim');
+    Route::post('/laporan/kirim/{admin}', [LaporanController::class, 'store'])->name('laporan.kirim.store');
+    
+    Route::get('/laporan/riwayat', [LaporanController::class, 'riwayat'])->name('laporan.riwayat');
+    Route::get('/laporan/detail/{laporan}', [LaporanController::class, 'detail'])->name('laporan.detail');
+});
 
 });

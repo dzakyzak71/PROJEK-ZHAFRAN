@@ -3,62 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Panel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>@yield('title', 'Dashboard User')</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #f7f9fc;
-        }
-        .sidebar {
-            height: 100vh;
-            background: #fff;
-            border-right: 1px solid #ddd;
-        }
-        .sidebar a {
-            display: block;
-            padding: 15px 20px;
-            color: #333;
-            text-decoration: none;
-        }
-        .sidebar a:hover, .sidebar a.active {
-            background-color: #e8f0fe;
-            color: #000;
-        }
-        .profile-box {
-            padding: 15px 20px;
-            border-top: 1px solid #ddd;
+            font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-100">
 
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 sidebar p-0">
-            <h4 class="text-center mt-4">User Panel</h4>
-            <a href="{{ route('user.admin.list') }}" class="{{ request()->routeIs('user.admin.list') ? 'active' : '' }}">
-                📦 Kirim Laporan
-            </a>
-            <a href="{{ route('user.laporan.index') }}" class="{{ request()->routeIs('user.laporan.index') ? 'active' : '' }}">
-                🗂 Laporan Saya
-            </a>
-            <div class="profile-box mt-auto">
-                <hr>
-                <p class="mb-1"><strong>{{ Auth::user()->name }}</strong></p>
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button class="btn btn-danger btn-sm mt-2 w-100">Logout</button>
-                </form>
-            </div>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md p-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
+        <!-- Logo / Title -->
+        <div class="text-2xl font-bold text-blue-600 tracking-wide">
+            User Panel
         </div>
+
+        <!-- Right Section -->
+        <div class="flex items-center gap-4">
+            <!-- Nama User -->
+            <span class="text-gray-700 font-medium">{{ Auth::user()->name }}</span>
+
+            <!-- Foto Profil Bisa Klik -->
+            <a href="{{ route('user.profil') }}" title="Ubah Profil">
+                @if(Auth::user()->foto)
+                    <img src="{{ asset('storage/'.Auth::user()->foto) }}" 
+                        alt="Foto Profil" 
+                        class="w-8 h-8 rounded-full object-cover border cursor-pointer hover:ring-2 hover:ring-blue-400 transition">
+                @else
+                    <img src="{{ asset('default-avatar.png') }}" 
+                        alt="Default Avatar" 
+                        class="w-8 h-8 rounded-full object-cover border cursor-pointer hover:ring-2 hover:ring-blue-400 transition">
+                @endif
+            </a>
+
+            <!-- Tombol Logout -->
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 transition">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 text-white min-h-screen shadow-md">
+            <div class="p-4 font-bold text-lg border-b border-gray-700">
+                Menu
+            </div>
+            <ul class="p-4 space-y-2">
+                <li>
+                    <a href="{{ route('user.dashboard') }}" 
+                       class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-800 transition">
+                        🏠 <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('user.laporan.riwayat') }}" 
+                       class="flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-800 transition">
+                        📋 <span>Riwayat Laporan</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
 
         <!-- Main Content -->
-        <div class="col-md-9 col-lg-10 p-4">
+        <main class="flex-1 p-6">
+            @if(session('success'))
+                <div class="bg-green-100 text-green-800 p-3 mb-4 rounded shadow">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             @yield('content')
-        </div>
+        </main>
     </div>
-</div>
 
 </body>
 </html>

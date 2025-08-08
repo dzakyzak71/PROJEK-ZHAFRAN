@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,20 +9,20 @@ class Laporan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'admin_id', 'judul', 'isi_laporan'];
+    protected $fillable = [
+        'user_id',
+        'admin_id',
+        'judul',
+        'isi',
+    ];
 
-    public function user()
+    public function pengirim()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function admin()
+    public function adminTujuan()
     {
         return $this->belongsTo(User::class, 'admin_id');
-    }
-
-    public function images()
-    {
-        return $this->hasMany(LaporanImage::class);
     }
 }

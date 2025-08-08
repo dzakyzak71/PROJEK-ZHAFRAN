@@ -1,50 +1,56 @@
 <?php
+
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Laporan;
-use App\Models\LaporanImage;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
+use App\Models\User;
+use App\Models\Laporan;
 
 class LaporanController extends Controller
 {
-    public function create()
+    // Form Kirim Laporan
+    public function create(User $admin)
     {
-        $admins = User::role('admin')->get(); // pakai spatie role
-        return view('user.pages.components.create', compact('admins'));
+        return view('user.pages.kirim-laporan', compact('admin'));
     }
 
-    public function store(Request $request)
+    // Simpan Laporan
+    public function store(Request $request, User $admin)
     {
         $request->validate([
-            'admin_id' => 'required|exists:users,id',
             'judul' => 'required|string|max:255',
-            'isi_laporan' => 'required|string|max:2000',
-            'gambar.*' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'isi' => 'required|string',
         ]);
 
-        // Simpan laporan utama
-        $laporan = Laporan::create([
+        Laporan::create([
             'user_id' => Auth::id(),
-            'admin_id' => $request->admin_id,
+            'admin_id' => $admin->id,
             'judul' => $request->judul,
-            'isi_laporan' => $request->isi_laporan,
+            'isi' => $request->isi,
         ]);
 
-        // Simpan gambar-gambar
-        if ($request->hasFile('gambar')) {
-            foreach ($request->file('gambar') as $img) {
-                $path = $img->store('laporan/gambar');
-                LaporanImage::create([
-                    'laporan_id' => $laporan->id,
-                    'path' => $path,
-                ]);
-            }
-        }
+        return redirect()->route('user.laporan.riwayat')->with('success', 'Laporan berhasil dikirim!');
+    }
 
-        return redirect()->back()->with('success', 'Laporan berhasil dikirim!');
+    // Riwayat Laporan
+    public function riwayat()
+    {
+        $laporans = Laporan::with('adminTujuan')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        return view('user.pages.konteks.riwayat-laporan', compact('laporans'));
+    }
+
+    // Detail Laporan
+    public function detail(Laporan $laporan)
+    {
+        if ($laporan->user_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('user.pages.konteks.detail-laporan', compact('laporan'));
     }
 }
