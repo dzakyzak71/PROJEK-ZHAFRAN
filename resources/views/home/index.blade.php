@@ -36,7 +36,7 @@
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container">
     <a class="navbar-brand" href="#">Intelijen News</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -44,15 +44,15 @@
     </button>
 
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-      <ul class="navbar-nav">
+      <ul class="navbar-nav align-items-center">
         @auth
           <li class="nav-item">
             <a class="nav-link" href="{{ route('dashboard') }}">Dashboard</a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item ms-3">
             <form method="POST" action="{{ route('logout') }}">
               @csrf
-              <button class="btn btn-outline-danger ms-2" type="submit">Logout</button>
+              <button class="btn btn-primary" type="submit">Logout</button>
             </form>
           </li>
         @else
@@ -67,6 +67,7 @@
     </div>
   </div>
 </nav>
+
 
 <!-- Konten Utama -->
 <div class="container py-5">

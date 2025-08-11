@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -11,19 +12,14 @@ use App\Http\Controllers\Superadmin\CekBugController;
 use App\Http\Controllers\Superadmin\IpTrackingController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\LaporanController;
-
-
-
-
+use App\Http\Controllers\Superadmin\LaporanController as SuperadminLaporanController;
 
 // ===================== PUBLIC ============================
-
 Route::get('/', fn () => redirect()->route('home'));
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/berita/{id}', [HomeController::class, 'show'])->name('berita.show');
 
 // ===================== AUTH ============================
-
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
@@ -32,7 +28,6 @@ Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->na
 Route::post('/register', [RegisterController::class, 'register']);
 
 // ===================== AUTHENTICATED ============================
-
 Route::middleware('auth')->group(function () {
 
     // Role-based redirect
@@ -43,27 +38,42 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('user.dashboard');
     })->name('dashboard');
 
+    // ===================== FOTO PROFIL ============================
+    Route::get('/user/foto/{filename}', function ($filename) {
+        $pathPublic = storage_path('app/public/profil/' . $filename);
+        if (file_exists($pathPublic)) {
+            return Response::file($pathPublic);
+        }
+        $pathDefault = storage_path('app/private/profil/gambarfoto.jpg');
+        if (file_exists($pathDefault)) {
+            return Response::file($pathDefault);
+        }
+        abort(404, 'Foto tidak ditemukan.');
+    })->name('user.profil')->middleware(['role:user']);
+
+    // Profil default
+    Route::get('/profil/default', fn () => redirect(asset('images/default-profile.jpg')))
+        ->name('profil.default');
+
     // ===================== SUPERADMIN ============================
     Route::middleware('role:superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
-
-        // Dashboard
-        Route::get('/dashboard', fn () => view('superadmin.pages.dashboard'))->name('dashboard');
+        Route::view('/dashboard', 'superadmin.pages.dashboard')->name('dashboard');
 
         // Laporan
-        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan');
-        Route::get('/laporan/{id}', [LaporanController::class, 'show'])->name('laporan.show');
-        Route::get('/laporan/{id}/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.pdf');
-        Route::get('/laporan/{id}/print', [LaporanController::class, 'print'])->name('laporan.print');
-        Route::get('/laporan-user', [LaporanUserController::class, 'index'])->name('laporan-user');
+        Route::get('/laporan', [SuperadminLaporanController::class, 'index'])->name('laporan');
+        Route::get('/laporan/{id}', [SuperadminLaporanController::class, 'show'])->name('laporan.show');
+        Route::get('/laporan/{id}/pdf', [SuperadminLaporanController::class, 'exportPdf'])->name('laporan.pdf');
+        Route::get('/laporan/{id}/print', [SuperadminLaporanController::class, 'print'])->name('laporan.print');
+        Route::get('/laporan-user', [SuperadminLaporanController::class, 'laporanUser'])->name('laporan-user');
 
-        // Admin
+        // Admin Management
         Route::get('/buat-admin', [AkunAdminController::class, 'showAdminForm'])->name('buat-admin');
         Route::post('/simpan-admin', [AkunAdminController::class, 'storeAdmin'])->name('simpan-admin');
         Route::get('/edit-admin/{id}', [AkunAdminController::class, 'edit'])->name('edit-admin');
         Route::put('/update-admin/{id}', [AkunAdminController::class, 'update'])->name('update-admin');
         Route::delete('/hapus-admin/{id}', [AkunAdminController::class, 'destroy'])->name('hapus-admin');
 
-        // User
+        // User Management
         Route::get('/buat-user', [AkunUserController::class, 'showForm'])->name('buat-user');
         Route::post('/simpan-user', [AkunUserController::class, 'store'])->name('simpan-user');
         Route::get('/edit-user/{id}', [AkunUserController::class, 'edit'])->name('edit-user');
@@ -91,22 +101,20 @@ Route::middleware('auth')->group(function () {
 
     // ===================== ADMIN ============================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', fn () => view('admin.pages.dashboard'))->name('dashboard');
-
-        // Tambah route acc laporan jika ada nanti di sini
+        Route::view('/dashboard', 'admin.pages.dashboard')->name('dashboard');
     });
 
-   // ===================== USER ============================
-   Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
-    Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
-    Route::get('/profil', [UserController::class, 'editProfil'])->name('profil');
-    Route::post('/profil', [UserController::class, 'updateProfil'])->name('profil.update');
-    
-    Route::get('/laporan/kirim/{admin}', [LaporanController::class, 'create'])->name('laporan.kirim');
-    Route::post('/laporan/kirim/{admin}', [LaporanController::class, 'store'])->name('laporan.kirim.store');
-    
-    Route::get('/laporan/riwayat', [LaporanController::class, 'riwayat'])->name('laporan.riwayat');
-    Route::get('/laporan/detail/{laporan}', [LaporanController::class, 'detail'])->name('laporan.detail');
-});
+    // ===================== USER ============================
+    Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
+        Route::get('/dashboard', [UserController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profil', [UserController::class, 'editProfil'])->name('profil');
+        Route::post('/profil', [UserController::class, 'updateProfil'])->name('profil.update');
+        Route::delete('/profil/hapus-foto', [UserController::class, 'hapusFoto'])->name('profil.hapusFoto');
 
+        // Laporan
+        Route::get('/laporan/kirim/{adminId}', [LaporanController::class, 'create'])->name('laporan.kirim');
+        Route::post('/laporan/store/{adminId}', [LaporanController::class, 'store'])->name('laporan.store');
+        Route::get('/laporan/riwayat', [LaporanController::class, 'riwayat'])->name('laporan.riwayat');
+        Route::get('/laporan/detail/{laporanId}', [LaporanController::class, 'detail'])->name('laporan.detail');
+    });
 });

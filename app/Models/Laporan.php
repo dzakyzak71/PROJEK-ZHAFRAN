@@ -14,7 +14,19 @@ class Laporan extends Model
         'admin_id',
         'judul',
         'isi',
+        'status', // tambahkan
     ];
+
+    public function images()
+    {
+        return $this->hasMany(LaporanImage::class);
+        
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 
     public function pengirim()
     {

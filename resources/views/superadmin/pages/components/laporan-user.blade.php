@@ -1,54 +1,52 @@
 @extends('layouts.superadmin')
 
 @section('content')
-<div class="container mt-5">
-    <h2 class="mb-4 text-center fw-bold">📄 Daftar Laporan dari User</h2>
-
-    <div class="table-responsive shadow-sm border rounded p-3 bg-white">
-        <table class="table table-bordered table-hover align-middle text-center">
-            <thead class="table-dark">
+<div class="min-h-screen bg-gray-100 p-6">
+    <div class="bg-white shadow-lg rounded-xl p-4">
+        <h2 class="text-2xl font-bold mb-4 text-gray-700">📄 Daftar Laporan User</h2>
+        
+        <table class="w-full text-sm text-gray-700 border">
+            <thead class="bg-gray-800 text-white">
                 <tr>
-                    <th style="min-width: 50px;">No</th>
-                    <th style="min-width: 150px;">Nama User</th>
-                    <th style="min-width: 200px;">Email</th>
-                    <th style="min-width: 250px;">Isi Laporan</th>
-                    <th style="min-width: 150px;">Waktu Kirim</th>
-                    <th style="min-width: 120px;">Gambar</th>
-                    <th style="min-width: 150px;">Aksi</th>
+                    <th class="px-3 py-2">No</th>
+                    <th class="px-3 py-2">Nama User</th>
+                    <th class="px-3 py-2">Email</th>
+                    <th class="px-3 py-2">Isi Laporan</th>
+                    <th class="px-3 py-2">Waktu Kirim</th>
+                    <th class="px-3 py-2">Gambar</th>
+                    <th class="px-3 py-2">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse ($laporans as $laporan)
-                <tr>
+                @foreach ($laporans as $laporan)
+                <tr class="border-b">
                     <td class="px-3 py-2">{{ $loop->iteration }}</td>
                     <td class="px-3 py-2">{{ $laporan->user->name }}</td>
                     <td class="px-3 py-2">{{ $laporan->user->email }}</td>
-                    <td class="px-3 py-2 text-start">{{ \Illuminate\Support\Str::limit($laporan->isi, 100) }}</td>
+                    <td class="px-3 py-2">{{ Str::limit($laporan->isi, 80) }}</td>
                     <td class="px-3 py-2">{{ $laporan->created_at->format('d-m-Y H:i') }}</td>
                     <td class="px-3 py-2">
-                        @if($laporan->gambar)
-                            <img src="{{ asset('storage/laporan/' . $laporan->gambar) }}" alt="gambar" class="img-thumbnail" style="max-width: 100px;">
+                        @if($laporan->images->count())
+                            <div class="flex flex-wrap gap-2">
+                                @foreach($laporan->images as $img)
+                                    <img src="{{ asset($img->filename) }}"
+                                         class="w-16 h-16 object-cover rounded shadow">
+                                @endforeach
+                            </div>
                         @else
-                            <span class=" text-muted fst-italic">Tidak ada</span>
+                            <span class="text-gray-400 italic">Tidak ada</span>
                         @endif
                     </td>
                     <td class="px-3 py-2">
-                        <a href="{{ route('superadmin.laporan.show', $laporan->id) }}" class="btn btn-sm btn-primary mb-1">👁️ Lihat</a>
-                        <a href="{{ route('superadmin.laporan.pdf', $laporan->id) }}" class="btn btn-sm btn-success mb-1" target="_blank">⬇️ PDF</a>
-                        <a href="{{ route('superadmin.laporan.print', $laporan->id) }}" class="btn btn-sm btn-secondary mb-1" target="_blank">🖨️ Cetak</a>
+                        <a href="{{ route('superadmin.laporan.show', $laporan->id) }}" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">👁️ Lihat</a>
+                        <a href="{{ route('superadmin.laporan.pdf', $laporan->id) }}" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded">⬇️ PDF</a>
+                        <a href="{{ route('superadmin.laporan.print', $laporan->id) }}" class="bg-gray-700 hover:bg-gray-800 text-white px-2 py-1 rounded">🖨️ Cetak</a>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="7" class="mt-3 text-center text-muted"> 
-                        <div style="margin-top: 20px;">
-                            Belum ada laporan.
-                            </div>
-                        </td>
-                </tr>
-                @endforelse
+                @endforeach
             </tbody>
         </table>
     </div>
 </div>
+
 @endsection
