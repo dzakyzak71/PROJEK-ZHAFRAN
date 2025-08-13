@@ -10,6 +10,9 @@ use App\Http\Controllers\Superadmin\AkunUserController;
 use App\Http\Controllers\Superadmin\BeritaController;
 use App\Http\Controllers\Superadmin\CekBugController;
 use App\Http\Controllers\Superadmin\IpTrackingController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\ProfilController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\User\LaporanController;
 use App\Http\Controllers\Superadmin\LaporanController as SuperadminLaporanController;
@@ -101,7 +104,30 @@ Route::middleware('auth')->group(function () {
 
     // ===================== ADMIN ============================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::view('/dashboard', 'admin.pages.dashboard')->name('dashboard');
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+
+    //menerrima laporan user
+        Route::get('/laporan/pending', [AdminController::class, 'laporanPending'])->name('laporan.pending');
+        Route::get('/laporan/{id}', [AdminController::class, 'show'])->name('components.show');
+        Route::post('/laporan/{id}/terima', [AdminController::class, 'terimaLaporan'])->name('components.terima');
+        Route::post('/laporan/{id}/tolak', [AdminController::class, 'tolakLaporan'])->name('components.tolak');
+
+    // Berita
+        Route::get('/berita', [AdminController::class, 'index'])->name('upload-berita');
+        Route::get('/berita/create', [AdminController::class, 'create'])->name('berita.create');
+        Route::post('/berita', [AdminController::class, 'store'])->name('berita.store');
+        Route::get('/berita/{id}/edit', [AdminController::class, 'edit'])->name('berita.edit');
+        Route::put('/berita/{id}', [AdminController::class, 'update'])->name('berita.update');
+        Route::delete('/berita/{id}', [AdminController::class, 'destroy'])->name('berita.destroy');
+
+      //data usr  
+        Route::get('/users', [UserAdminController::class, 'index'])->name('users.data');
+
+        //profil
+         Route::get('/admin/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::post('/admin/profil/update', [ProfilController::class, 'update'])->name('profil.update');
+    Route::delete('/admin/profil/hapus-foto', [ProfilController::class, 'hapusFoto'])->name('profil.hapusFoto');
+
     });
 
     // ===================== USER ============================
