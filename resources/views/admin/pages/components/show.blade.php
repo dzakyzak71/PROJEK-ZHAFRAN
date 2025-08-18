@@ -47,22 +47,12 @@
         @endif
     </div>
 
-    <!-- Tombol Aksi -->
-    <div class="mt-6 flex justify-center space-x-4">
-        <form action="{{ route('admin.components.terima', $laporan->id) }}" method="POST" onsubmit="return confirm('Terima laporan ini?')">
-            @csrf
-            <button type="submit" 
-                class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
-                Terima
-            </button>
-        </form>
-        <form action="{{ route('admin.components.tolak', $laporan->id) }}" method="POST" onsubmit="return confirm('Tolak laporan ini?')">
-            @csrf
-            <button type="submit" 
-                class="px-5 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition">
-                Tolak
-            </button>
-        </form>
+    <!-- Tombol Kembali -->
+    <div class="mt-6 flex justify-center">
+        <a href="{{ route('admin.detail-laporan', $laporan->user_id) }}"
+           class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition">
+           ← Kembali
+        </a>
     </div>
 </div>
 @endsection

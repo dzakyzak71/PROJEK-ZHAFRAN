@@ -7,9 +7,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Laporan;
 use App\Models\Berita;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+
 
 class AdminController extends Controller
 {
+
+
      /** =======================
      * DASHBOARD
      * ======================= */
@@ -26,24 +30,37 @@ class AdminController extends Controller
      * ======================= */
     public function laporanPending()
     {
+        $adminId = Auth::id();
+
         $laporan = Laporan::where('status', 'pending')
-            ->with(['user', 'images']) // ambil juga gambar
+            ->where('admin_id', $adminId) // filter hanya untuk admin ini
+            ->with(['user', 'images'])
             ->latest()
             ->get();
 
-        return view('admin.pages.components.pending', compact('laporan'));
+        return view('admin.pages.components.laporan-pending', compact('laporan'));
     }
 
     public function show($id)
     {
-        $laporan = Laporan::with(['user', 'images'])->findOrFail($id);
+        $adminId = Auth::id();
+
+        $laporan = Laporan::with(['user', 'images'])
+            ->where('id', $id)
+            ->where('admin_id', $adminId)
+            ->firstOrFail();
+
         return view('admin.pages.components.show', compact('laporan'));
     }
+
 
     public function terimaLaporan($id)
     {
         $laporan = Laporan::findOrFail($id);
-        $laporan->update(['status' => 'diterima']);
+        $laporan->update([
+            'status'   => 'diterima',
+            'admin_id' => Auth::id() // simpan admin yang aksi
+        ]);
 
         return back()->with('success', '✅ Laporan berhasil diterima.');
     }
@@ -51,10 +68,14 @@ class AdminController extends Controller
     public function tolakLaporan($id)
     {
         $laporan = Laporan::findOrFail($id);
-        $laporan->update(['status' => 'ditolak']);
+        $laporan->update([
+            'status'   => 'ditolak',
+            'admin_id' => Auth::id() // simpan admin yang aksi
+        ]);
 
         return back()->with('success', '❌ Laporan berhasil ditolak.');
     }
+
 
    /** =======================
      * BERITA: Tampilkan halaman upload berita beserta daftar berita

@@ -26,7 +26,7 @@
     .form-control {
       border-radius: 8px;
     }
-    .btn-primary {
+    .btn-primary, .btn-success {
       border-radius: 8px;
     }
     .logo {
@@ -47,6 +47,9 @@
   @if(session('error'))
     <div class="alert alert-danger">{{ session('error') }}</div>
   @endif
+  @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+  @endif
 
   <form method="POST" action="{{ route('register') }}">
     @csrf
@@ -58,12 +61,20 @@
 
     <div class="mb-3">
       <label for="email" class="form-label">Gmail</label>
-      <input type="email" name="email" class="form-control" placeholder="example@gmail.com" required>
+      <div class="input-group">
+        <input type="email" name="email" id="email" class="form-control" placeholder="example@gmail.com" required>
+        <button type="button" id="btnOtp" class="btn btn-success">Minta Kode</button>
+      </div>
     </div>
 
     <div class="mb-3">
       <label for="phone" class="form-label">Nomor Telepon</label>
-      <input type="text" name="phone" class="form-control" placeholder="+62xxxxxxxxxx" required>
+      <input type="text" name="phone" id="phone" class="form-control" placeholder="+62xxxxxxxxxx" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="otp" class="form-label">Kode OTP Gmail</label>
+      <input type="text" name="otp" id="otp" class="form-control" placeholder="Masukkan kode OTP" required>
     </div>
 
     <div class="mb-3">
@@ -85,6 +96,40 @@
     </div>
   </form>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // Saat klik tombol minta kode
+  $("#btnOtp").on("click", function() {
+    let email = $("#email").val();
+    let phone = $("#phone").val();
+
+    if (!email) {
+      alert("Masukkan Gmail terlebih dahulu!");
+      return;
+    }
+    if (!phone) {
+      alert("Masukkan Nomor Telepon terlebih dahulu!");
+      return;
+    }
+
+    $.ajax({
+      url: "{{ route('otp.send') }}",
+      type: "POST",
+      data: {
+        _token: "{{ csrf_token() }}",
+        email: email,
+        phone: phone
+      },
+      success: function(res) {
+        alert(res.message);
+      },
+      error: function(xhr) {
+        alert("Gagal mengirim OTP: " + xhr.responseJSON.message);
+      }
+    });
+  });
+</script>
 
 </body>
 </html>

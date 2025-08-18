@@ -63,13 +63,6 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
-            protected static function booted()
-        {
-            static::creating(function ($user) {
-                if (empty($user->foto)) {
-                    $user->foto = 'profil/gambarfoto.jpg'; // relative path di storage/app/private
-                }
-            });
-        }
+            
 
 }
